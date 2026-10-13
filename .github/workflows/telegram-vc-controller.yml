@@ -1,0 +1,30 @@
+name: Telegram VC Workflow Controller
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-vc-controller
+  cancel-in-progress: false
+
+jobs:
+  validate-controller-state:
+    name: Validate repository state (no bot startup)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check Python syntax
+        run: python -m compileall -q .
+      - name: Confirm workflow files exist
+        run: |
+          test -f .github/workflows/validate.yml
+          echo "Validation workflow is present."
