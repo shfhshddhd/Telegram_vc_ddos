@@ -1,0 +1,31 @@
+name: Telegram VC Repository Watchdog
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: telegram-vc-watchdog
+  cancel-in-progress: true
+
+jobs:
+  repository-health:
+    name: Scheduled syntax health check
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check Python syntax
+        run: python -m compileall -q .
+      - name: Report status
+        if: success()
+        run: echo "Repository syntax check passed. This watchdog does not start or restart the bot."
